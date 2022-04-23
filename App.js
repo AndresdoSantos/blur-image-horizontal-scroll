@@ -26,11 +26,44 @@ const imageW = width * 0.7;
 const imageH = imageW * 1.54;
 
 export default () => {
+  const scrollX = React.useRef(new Animated.Value(0)).current;
+  console.log(scrollX);
+
   return (
     <View style={{ flex: 1, backgroundColor: '#000' }}>
       <StatusBar hidden />
 
-      <FlatList
+      <View style={StyleSheet.absoluteFillObject}>
+        {data.map((image, index) => {
+          const inputRange = [
+            (index - 1) * width,
+            index * width,
+            (index + 1) * width,
+          ];
+
+          const opacity = scrollX.interpolate({
+            inputRange,
+            outputRange: [0, 1, 0],
+          });
+          console.log(opacity);
+
+          return (
+            <Animated.Image
+              key={`image-${index}`}
+              source={{ uri: image }}
+              style={[StyleSheet.absoluteFillObject, { opacity }]}
+              blurRadius={50}
+            />
+          );
+        })}
+      </View>
+
+      <Animated.FlatList
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+          { useNativeDriver: true }
+        )}
+        showsHorizontalScrollIndicator={false}
         horizontal
         pagingEnabled
         data={data}
@@ -38,11 +71,28 @@ export default () => {
         renderItem={({ item }) => {
           return (
             <View
-              style={{ width, justifyContent: 'center', alignItems: 'center' }}
+              style={{
+                width,
+                justifyContent: 'center',
+                alignItems: 'center',
+                shadowColor: '#000',
+                shadowOpacity: 1,
+                shadowOffset: {
+                  width: 0,
+                  height: 0,
+                },
+                shadowRadius: 20,
+                elevation: 80,
+              }}
             >
               <Image
                 source={{ uri: item }}
-                style={{ width: imageW, height: imageH, resizeMode: 'cover' }}
+                style={{
+                  width: imageW,
+                  height: imageH,
+                  resizeMode: 'cover',
+                  borderRadius: 16,
+                }}
               />
             </View>
           );
